@@ -22,6 +22,7 @@ This library depends upon `MapplsAPICore`. All dependent libraries will be autom
 
 | Version | Dated | Description |
 | :---- | :---- | :---- |
+| `3.0.1`| 23 July 2025 | - Improvement and bug fixes. |
 | `3.0.0`| 04 Jun 2025 | - Updated minimum iOS deployment target to 13.0 <br> - Authentication and authorization mechanisms have been revised. |
 | --- | --- | --- |
 | `2.0.30`| 03 Feb 2025 | -  Added a `MapplsDigiPinUtility` class to get digipin from coordinate and vice-versa. <br>- Added a page info, partner flag and filters in poi along the route|
