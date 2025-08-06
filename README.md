@@ -22,6 +22,7 @@ This library depends upon `MapplsAPICore`. All dependent libraries will be autom
 
 | Version | Dated | Description |
 | :---- | :---- | :---- |
+| `3.0.2`| 06 Aug 2025 | - Added `stages` in object of `MapplsReportedEventSummary`. <br> - Added a property `parentCategories` in the object of `MapplsRouteReportedEventSummary` |
 | `3.0.1`| 23 July 2025 | - Improvement and bug fixes. |
 | `3.0.0`| 04 Jun 2025 | - Updated minimum iOS deployment target to 13.0 <br> - Authentication and authorization mechanisms have been revised. |
 | --- | --- | --- |

@@ -17,8 +17,8 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "MapplsAPIKit",
-            url: "https://mmi-api-team.s3.amazonaws.com/mappls-sdk-ios/mappls-api-kit/3.0.1/MapplsAPIKit.xcframework.zip",
-            checksum: "25c25aab6176bd48fec318e61dae5dd0c74664c65954cf4613b50d3f9ee72d5a"
+            url: "https://mmi-api-team.s3.amazonaws.com/mappls-sdk-ios/mappls-api-kit/3.0.2/MapplsAPIKit.xcframework.zip",
+            checksum: "a2677e3e14c568e75d51e1a2389d6dbc3b6d9025799c34eb64b4d03ccd8e4722"
         ),
         .target(
             name: "MapplsAPIWrapper",
