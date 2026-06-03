@@ -22,6 +22,7 @@ This library depends upon `MapplsAPICore`. All dependent libraries will be autom
 
 | Version | Dated | Description |
 | :---- | :---- | :---- |
+| `3.0.5`| 03 Jun 2026 | - Added nearby reverse goecode api. <br> - Added transit planner api. |
 | `3.0.4`| 31 Mar 2026 | - Added and removed some request and respose parameter in api wrappers.|
 | `3.0.2`| 06 Aug 2025 | - Added `stages` in object of `MapplsReportedEventSummary`. <br> - Added a property `parentCategories` in the object of `MapplsRouteReportedEventSummary` |
 | `3.0.1`| 23 July 2025 | - Improvement and bug fixes. |
@@ -1424,6 +1425,177 @@ Below is line of code to initilize instance of it:
 
 ```swift
 let speedInfo = MapplsDrivingRangePredictiveSpeedFromCustomTime(timestamp: 1633684669)
+```
+
+
+## [Transit Route Planner API](#Transit-Route-Planner-API)
+
+A multimodal routing is used for planning a route that involves multiple modes of transportation (e.g. BUS, METRO, RAIL(LOCAL), etc.). We are implementing it using MapmyIndia GTFS (General Transit Feed Specification) data over the MapmyIndia routing dataset to build the transit network.
+
+This API currently focuses upon travel by scheduled public transportation in combination with walking. After doing the evaluation and validation on the current dataset, we are aiming to move further to all metro cities and then to Pan India for longer routes multimodal routing (which includes trains, planes, etc.). The Transit Planner is available for the following cities:
+- Delhi
+
+#### Transportation Modes
+- **BUS**: For bus routes only.
+- **SUBWAY**: For metro routes only.
+- **RAIL**: For Local Railway routes only.
+- **TRANSIT**: Includes all types of modes.
+(Note: These modes can be used in combinations also)
+
+#### Notes
+- Routes are prioritized on the basis of arrival time and nearest start station.
+
+Class used for transit planner is `MapplsTransitPlanner`. Create a `MapplsTransitPlanner` object or use the shared instance of `MapplsTransitPlanner` class.
+
+### Request Parameters
+
+`MapplsTransitPlannerOptions` is the request class which will be used to pass all required and optional parameters.
+
+#### Mandatory Parameters:
+1. **fromPlace**: The starting location for the transit route. It is of type `CLLocation`.
+2. **toPlace**: The destination location for the transit route. It is of type `CLLocation`.
+3. **modes**: The set of modes that a user is willing to use. Possible values: `TRANSIT`, `SUBWAY`, `RAIL`, `BUS`.
+
+#### Optional Parameters:
+1. **date**: The date that the trip should depart (or arrive, for requests where arriveBy is true). (Format: mm-dd-yyyy or yyyy-mm-dd).
+2. **time**: The time that the trip should depart (or arrive, for requests where arriveBy is true). (Format: "hh:mm" am/pm or "hh:mm:ss" am/pm).
+3. **arriveBy**: Whether the trip should depart or arrive at the specified date and time. By default it is `false` and will result in the departure date and time.
+4. **showIntermediateStops**: Whether intermediate stops should be returned in the response. By Default `false`.
+5. **maxWalkDistance**: The maximum distance the user is willing to walk in meters.
+
+### Response Parameters
+
+In response, you will receive an object of `MapplsTransitPlannerResponse`.
+
+1. **date**: The date of the trip.
+2. **itineraries**: List of itineraries (of type `MapplsTransitItinerary`).
+    - **startTime**: Start time of the itinerary.
+    - **endTime**: End time of the itinerary.
+    - **duration**: Total duration in seconds.
+    - **walkTime**: Time spent walking, in seconds.
+    - **transitTime**: Time spent on transit, in seconds.
+    - **waitingTime**: Time spent waiting for transit, in seconds.
+    - **walkDistance**: How far the user has to walk, in meters.
+    - **transfers**: The number of transfers.
+    - **fare**: Fare details (of type `MapplsTransitFare`).
+        - **currencySymbol**: Symbol of the currency used.
+        - **currencyCode**: Code of the currency used.
+        - **amount**: Amount of the trip.
+    - **legs**: A list of legs (of type `MapplsTransitLeg`).
+        - **mode**: Mode used for this leg.
+        - **duration**: Duration of the leg in seconds.
+        - **distance**: Distance of the leg in meters.
+        - **startTime**: Start time of the leg.
+        - **endTime**: End time of the leg.
+        - **transitLeg**: Whether this leg is a transit leg or not.
+        - **route**: Route name.
+        - **agencyName**: Name of the agency operating the transportation.
+        - **from**: Origin of the leg (of type `MapplsTransitStop`).
+        - **to**: Destination of the leg (of type `MapplsTransitStop`).
+        - **steps**: Turn-by-turn instructions for walking legs (of type `MapplsTransitStep`).
+        - **intermediateStops**: Intermediate stops for transit legs (of type `MapplsTransitStop`).
+        - **legGeometry**: The leg's geometry (of type `MapplsTransitLegGeometry`).
+
+### Code Samples
+
+#### Objective C
+```objectivec
+MapplsTransitPlanner *transitPlanner = [MapplsTransitPlanner shared];
+CLLocation *from = [[CLLocation alloc] initWithLatitude:28.5250 longitude:77.2052];
+CLLocation *to = [[CLLocation alloc] initWithLatitude:28.5373 longitude:77.2838];
+MapplsTransitPlannerOptions *options = [[MapplsTransitPlannerOptions alloc] initWithFromPlace:from toPlace:to modes:@[@"TRANSIT"]];
+
+[transitPlanner calculateTransitPlannerWithOptions:options completionHandler:^(MapplsTransitPlannerResponse * _Nullable response, NSError * _Nullable error) {
+    if (error) {
+        NSLog(@"Error: %@", error);
+    } else {
+        NSLog(@"Itineraries count: %lu", (unsigned long)response.itineraries.count);
+    }
+}];
+```
+
+#### Swift
+```swift
+let transitPlanner = MapplsTransitPlanner.shared
+let from = CLLocation(latitude: 28.5250, longitude: 77.2052)
+let to = CLLocation(latitude: 28.5373, longitude: 77.2838)
+let options = MapplsTransitPlannerOptions(fromPlace: from, toPlace: to, modes: ["TRANSIT"])
+
+transitPlanner.calculate(options) { (response, error) in
+    if let error = error {
+        print("Error: \(error.localizedDescription)")
+    } else if let response = response {
+        print("Itineraries count: \(response.itineraries?.count ?? 0)")
+    }
+}
+```
+
+For more details visit our [api reference documentation](https://about.mappls.com/api/advanced-maps/doc/transit-planner-api).
+
+## [Revgeocode Nearby API](#Revgeocode-Nearby-API)
+
+Revgeocode Nearby API, enables you to add discovery and search of nearby places corresponding to a given location (latitude/longitude).
+
+Class used for revgeocode nearby search is `MapplsRevgeocodeNearbyManager`. Create a `MapplsRevgeocodeNearbyManager` object or use the shared instance of `MapplsRevgeocodeNearbyManager` class.
+
+### Request Parameters
+
+`MapplsRevgeocodeNearbyOptions` is the request class which will be used to pass all required and optional parameters.
+
+#### Mandatory Parameters:
+1. **refLocation**: A location provides the location around which the search will be performed. It should be in comma-separated format i.e. `("latitude", "longitude")`.
+
+#### Optional Parameters:
+1. **radius**: The radius in meters to search for results.
+2. **itemCount**: The number of results to return per page.
+3. **page**: The page number of results to return.
+
+### Response Parameters
+
+In response, you will receive an object of `MapplsRevgeocodeNearbyResult`.
+
+1. **suggestions**: List of suggested locations (of type `MapplsAtlasSuggestion`).
+    - **placeName**: Name of the location.
+    - **placeAddress**: Address of the location.
+    - **latitude**: Latitude of the location.
+    - **longitude**: Longitude of the location.
+    - **mapplsPin**: Mappls Pin of the location.
+    - **distance**: Distance from the reference location in meters.
+    - **type**: Type of location POI or Country or City.
+2. **pageInfo**: Pagination information (of type `MapplsPageInfo`).
+
+### Code Samples
+
+#### Objective C
+```objectivec
+MapplsRevgeocodeNearbyManager *revNearbyManager = [MapplsRevgeocodeNearbyManager shared];
+MapplsRevgeocodeNearbyOptions *options = [[MapplsRevgeocodeNearbyOptions alloc] initWithLocation:@"28.550667, 77.268959"];
+
+[revNearbyManager getRevgeocodeNearbyWithOptions:options completionHandler:^(MapplsRevgeocodeNearbyResult * _Nullable result, NSError * _Nullable error) {
+    if (error) {
+        NSLog(@"Error: %@", error);
+    } else if (result.suggestions.count > 0) {
+        NSLog(@"Nearby: %@", result.suggestions[0].placeAddress);
+    } else {
+        NSLog(@"No results");
+    }
+}];
+```
+
+#### Swift
+```swift
+let revNearbyManager = MapplsRevgeocodeNearbyManager.shared
+let options = MapplsRevgeocodeNearbyOptions(location: "28.550667, 77.268959")
+
+revNearbyManager.getRevgeocodeNearby(options) { (result, error) in
+    if let error = error {
+        print("Error: \(error.localizedDescription)")
+    } else if let result = result, let suggestions = result.suggestions, !suggestions.isEmpty {
+        print("Nearby: \(suggestions[0].placeAddress ?? "")")
+    } else {
+        print("No results")
+    }
+}
 ```
 
 <br><br><br>
