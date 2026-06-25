@@ -22,6 +22,7 @@ This library depends upon `MapplsAPICore`. All dependent libraries will be autom
 
 | Version | Dated | Description |
 | :---- | :---- | :---- |
+| `3.0.6`| 25 jun 2026 | - Added support of odia language in directions response.|
 | `3.0.5`| 03 Jun 2026 | - Added nearby reverse goecode api. <br> - Added transit planner api. |
 | `3.0.4`| 31 Mar 2026 | - Added and removed some request and respose parameter in api wrappers.|
 | `3.0.2`| 06 Aug 2025 | - Added `stages` in object of `MapplsReportedEventSummary`. <br> - Added a property `parentCategories` in the object of `MapplsRouteReportedEventSummary` |
