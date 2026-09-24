@@ -48,21 +48,17 @@ Our APIs, SDKs, and live-updating map data are available for [200+ countries & t
 
 In Xcode, choose **File > Add Package Dependencies…**, enter the `MapplsAPIKit` repository URL, and add the package to your app target. See [Adding Package Dependencies to Your App](https://developer.apple.com/documentation/xcode/adding-package-dependencies-to-your-app).
 
-> **Important:** The Swift Package Manager distribution of `MapplsAPIKit` does **not** resolve its dependencies automatically. You must add the `MapplsAPICore` package to your project **manually**, using the same **File > Add Package Dependencies…** flow, before building:
->
-> ```
-> https://github.com/mappls-api/mappls-api-core-ios-distribution.git
-> ```
->
-> Add `MapplsAPICore` first (or alongside `MapplsAPIKit`) and link it to the same app target. Without it, the project will fail to build.
+### CocoaPods
 
+Add the pod to your `Podfile` and run `pod install`:
+
+```ruby
+pod 'MapplsAPIKit'
+```
 
 ### [Dependencies](#Dependencies)
 
-This library depends on `MapplsAPICore`.
-
-dependencies are **not** added automatically — add `MapplsAPICore` manually from `https://github.com/mappls-api/mappls-api-core-ios-distribution.git` (see the note above).
-
+This library depends on `MapplsAPICore`. When you install `MapplsAPIKit` through Swift Package Manager or CocoaPods, its dependencies are resolved automatically.
 
 ## [Version History](#Version-History)
 
@@ -71,7 +67,6 @@ dependencies are **not** added automatically — add `MapplsAPICore` manually fr
 | Version | Date | Highlights |
 | :---: | :---: | :--- |
 | **`3.0.8`** | 24 Sep 2026 | Renamed `searchType` to `global`; added `responseLanguage`, response `lang`, and `isKeyword`. |
-| `3.0.7`| 07 Sep 2026 | - Multi-Lane Guidance. <br> - Introduced validIndication property to evaluate and represent valid maneuver indications for individual lanes.|
 | `3.0.6` | 25 Jun 2026 | Added Odia language support. |
 | `3.0.5` | 03 Jun 2026 | Added Nearby Reverse Geocode and Transit Planner APIs. |
 | `3.0.0` | 04 Jun 2025 | Raised minimum iOS target to 13.0; revised authentication. |
