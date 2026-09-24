@@ -4,42 +4,88 @@
 
 ## [Introduction](#Introduction)
 
-Our APIs, SDKs, and live updating map data available for [200+ countries & territories](https://github.com/MapmyIndia/mapmyindia-rest-api/blob/master/docs/countryISO.md) give developers tools to build better experiences across various platforms.
+`MapplsAPIKit` is a Swift REST API kit that lets your iOS app consume Mappls (MapmyIndia) web services — autosuggest, geocoding, reverse geocoding, nearby search, routing, distance matrix, and more — through type-safe request and response objects instead of hand-built URLs.
 
-1. You can get your authentication information to be used in this document here: [https://auth.mappls.com/console/](https://auth.mappls.com/console/)
+Our APIs, SDKs, and live-updating map data are available for [200+ countries & territories](https://github.com/MapmyIndia/mapmyindia-rest-api/blob/master/docs/countryISO.md), giving developers the tools to build better experiences across platforms.
 
-2. The sample code is provided to help you understand the basic functionality of Mappls REST APIs working on iOS native development platform. 
+- **Get your keys:** create a project and generate REST API keys from the [Mappls Console](https://apis.mappls.com/console/).
+- **Sample app:** the bundled `MapplsAPIKitSample` target demonstrates the core APIs (search, nearby, geocoding, routing, and more) with runnable UI.
+
+## [Requirements](#Requirements)
+
+| Requirement | Minimum |
+| :---- | :---- |
+| iOS deployment target | 13.0 |
+| Xcode | 14.0+ |
+| Swift | 5.0+ |
+| Mappls REST API keys | Required (see [Authorization](#Authorization)) |
+
+> **Note:** As of `3.0.0` the minimum iOS deployment target is **13.0** and the authentication mechanism was revised. See [Version History](#Version-History).
+
+## [Table of Contents](#Table-of-Contents)
+
+- [Installation](#Installation)
+- [Authorization](#Authorization)
+- [API Usage and Requirements](#API-Usage-and-Requirements)
+- [Autosuggest API](#Autosuggest-API)
+- [Reverse Geocoding API](#Reverse-Geocoding-API)
+- [Nearby API](#Nearby-API)
+- [Place Detail](#Place-Detail)
+- [Geocoding API](#Geocoding-API)
+- [Routing API](#Routing-API)
+- [Driving Distance Time Matrix API](#Driving-Distance-Time-Matrix-API)
+- [POI Along The Route API](#POI-Along-The-Route-API)
+- [Nearby Reports API](#Nearby-Reports-API)
+- [Current Weather Condition API](#Current-Weather-Condition-API)
+- [Congestion Delays](#Congestion-Delays)
+- [Driving Range](#Driving-Range)
+- [Transit Route Planner API](#Transit-Route-Planner-API)
+- [Revgeocode Nearby API](#Revgeocode-Nearby-API)
 
 ## [Installation](#Installation)
 
-To add a package dependency to your Xcode project, select File > Swift Packages > Add Package Dependency and enter its repository URL. See [Adding Package Dependencies to Your App](https://developer.apple.com/documentation/xcode/adding-package-dependencies-to-your-app).
+### Swift Package Manager (recommended)
+
+In Xcode, choose **File > Add Package Dependencies…**, enter the `MapplsAPIKit` repository URL, and add the package to your app target. See [Adding Package Dependencies to Your App](https://developer.apple.com/documentation/xcode/adding-package-dependencies-to-your-app).
+
+### CocoaPods
+
+Add the pod to your `Podfile` and run `pod install`:
+
+```ruby
+pod 'MapplsAPIKit'
+```
 
 ### [Dependencies](#Dependencies)
 
-This library depends upon `MapplsAPICore`. All dependent libraries will be automatically.
+This library depends on `MapplsAPICore`. When you install `MapplsAPIKit` through Swift Package Manager or CocoaPods, its dependencies are resolved automatically.
 
 ## [Version History](#Version-History)
 
-| Version | Dated | Description |
-| :---- | :---- | :---- |
-| `3.0.7`| 07 Sep 2026 | - Multi-Lane Guidance. <br> - Introduced validIndication property to evaluate and represent valid maneuver indications for individual lanes.|
-| `3.0.6`| 25 jun 2026 | - Added support of odia language in directions response.|
-| `3.0.5`| 03 Jun 2026 | - Added nearby reverse goecode api. <br> - Added transit planner api. |
-| `3.0.4`| 31 Mar 2026 | - Added and removed some request and respose parameter in api wrappers.|
-| `3.0.2`| 06 Aug 2025 | - Added `stages` in object of `MapplsReportedEventSummary`. <br> - Added a property `parentCategories` in the object of `MapplsRouteReportedEventSummary` |
-| `3.0.1`| 23 July 2025 | - Improvement and bug fixes. |
-| `3.0.0`| 04 Jun 2025 | - Updated minimum iOS deployment target to 13.0 <br> - Authentication and authorization mechanisms have been revised. |
-| --- | --- | --- |
-| `2.0.30`| 03 Feb 2025 | -  Added a `MapplsDigiPinUtility` class to get digipin from coordinate and vice-versa. <br>- Added a page info, partner flag and filters in poi along the route|
+> **Latest release · `3.0.8`** — 24 Sep 2026 · See [CHANGELOG.md](CHANGELOG.md) for full release notes.
+
+| Version | Date | Highlights |
+| :---: | :---: | :--- |
+| **`3.0.8`** | 24 Sep 2026 | Renamed `searchType` to `global`; added `responseLanguage`, response `lang`, and `isKeyword`. |
+| `3.0.6` | 25 Jun 2026 | Added Odia language support. |
+| `3.0.5` | 03 Jun 2026 | Added Nearby Reverse Geocode and Transit Planner APIs. |
+| `3.0.0` | 04 Jun 2025 | Raised minimum iOS target to 13.0; revised authentication. |
+| `2.0.30` | 03 Feb 2025 | Added Smart Trip API and `MapplsDigiPinUtility`. |
 
 ## [Getting Started](#Getting-Started)
 
-Mappls Map SDK for iOS lets you easily add Mappls Map and services to your own iOS app.It supports iOS SDK 9.0 and above and Xcode 10.1 or later. You can have a look at the map and features you will get in your own app by using the Mappls Map app for iOS. The SDK handles Map Display along with a bunch of controls and native gestures.
+`MapplsAPIKit` gives you Swift wrappers for Mappls REST services. The typical flow is:
+
+1. Set your Mappls keys once at launch (see [Authorization](#Authorization)).
+2. Build a request `Options` object for the API you want (for example `MapplsAutoSearchAtlasOptions`).
+3. Call the corresponding manager (for example `MapplsAutoSuggestManager.shared`) and read the typed response in the completion handler.
+
+Each API section below lists its request parameters, response parameters, and Objective-C / Swift code samples.
 
 ## [Authorization](#Authorization)
 
 ### [MapplsAPICore](#MapplsAPICore)
-It is required to set Mappls keys and authenticate before using any Mappls SDK. Please see the reference [here](MapplsAPICore.md).
+It is required to set your Mappls keys and authenticate before using any Mappls SDK. See the reference [here](MapplsAPICore.md).
 
 ## [API Usage and Requirements](#API-Usage-and-Requirements)
 
@@ -86,9 +132,12 @@ Additionally you can also set location and restriction filters in object of `Map
 
 8. **responseLanguage:** It is of type `string` it is use to get the response in specified language.
 
+
 ### Response Parameters
 
 In response of auto suggest search either you will receive an error or an object of `MapplsAutoSuggestLocationResults`(derived from `MapplsLocationResults`) which contains an array of `MapplsAtlasSuggestion` (derived from `MapplsSuggestion`) and an array of suggested searches of type `MapplsSearchPrediction`.
+
+The `MapplsAutoSuggestLocationResults` object also exposes a **`lang`** (`String?`) property indicating the language of the returned results.
 
 ***Note:*** As class of response object will be derived from `MapplsLocationResults`, You will need to cast it into `MapplsAutoSuggestLocationResults`.
 
@@ -103,29 +152,29 @@ You will find below useful properties in suggestion object :
 
     **houseNumber**: house number of the location.
 
-    **houseName**: house name of the location.
+	**houseName**: house name of the location.
 
-    **poi**: name of the POI (if applicable)
+	**poi**: name of the POI (if applicable)
 
-    **street**: name of the street. (if applicable)
+	**street**: name of the street. (if applicable)
 
-    **subSubLocality**: the sub-sub-locality to which the location belongs. (if applicable)
+	**subSubLocality**: the sub-sub-locality to which the location belongs. (if applicable)
 
-    **subLocality**: the sub-locality to which the location belongs. (if applicable)
+	**subLocality**: the sub-locality to which the location belongs. (if applicable)
 
-    **locality**: the locality to which the location belongs. (if applicable)
+	**locality**: the locality to which the location belongs. (if applicable)
 
-    **village**: the village to which the location belongs. (if applicable)
+	**village**: the village to which the location belongs. (if applicable)
 
-    **subDistrict**: the sub-district to which the location belongs. (if applicable)
+	**subDistrict**: the sub-district to which the location belongs. (if applicable)
 
-    **district**: the district to which the location belongs. (if applicable)
+	**district**: the district to which the location belongs. (if applicable)
 
-    **city**: the city to which the location belongs. (if applicable)
+	**city**: the city to which the location belongs. (if applicable)
 
-    **state**: the state to which the location belongs. (if applicable)
+	**state**: the state to which the location belongs. (if applicable)
 
-    **pincode**: the PIN code to which the location belongs. (if applicable)
+	**pincode**: the PIN code to which the location belongs. (if applicable)
   
 ***Note:*** Values of `latitude`, `longitude`, `entranceLatitude` and `entrancelongitude` will depend upon claims provided on `Keys`.
 
@@ -141,8 +190,8 @@ MapplsAutoSearchAtlasOptions * autoSuggestOptions = [[MapplsAutoSearchAtlasOptio
 autoSuggestOptions.location = [[CLLocation alloc] initWithLatitude:28.2323234 longitude:72.3434123];
 autoSuggestOptions.zoom = [[NSNumber alloc] initWithInt:5];
 [autoSuggestManager getAutoSuggestionResultsWithOptions:autoSuggestOptions completionHandler:^(MapplsLocationResults * _Nullable locationResults, NSError * _Nullable error) {
-    if (error) {
-        NSLog(@"%@", error);
+	if (error) {
+    	NSLog(@"%@", error);
     } else if (locationResults) {
         MapplsAutoSuggestLocationResults * results = (MapplsAutoSuggestLocationResults *) locationResults;
         if(results && results.suggestions) {
@@ -156,7 +205,7 @@ autoSuggestOptions.zoom = [[NSNumber alloc] initWithInt:5];
             }
         }
     } else {
-        NSLog(@"No Results");
+    	NSLog(@"No Results");
     }
 }];
 ```
@@ -175,12 +224,12 @@ withRegion: .india)
 autoSearchAtlasOptions.location = CLLocation(latitude: 28.2323234, longitude: 72.3434123)
 autoSearchAtlasOptions.zoom = 5
 autoSuggestManager.getAutoSuggestionResults(autoSearchAtlasOptions) { (locationResults, error) in
-    if let error = error {
-        print("error: \(error.localizedDescription)")
-    } else if let locationResults = locationResults as? MapplsAutoSuggestLocationResults {
-        if let suggestions = locationResults.suggestions {
-            for suggestion in suggestions {
-                print("suggestion: \(suggestion.placeName)")
+	if let error = error {
+		print("error: \(error.localizedDescription)")
+	} else if let locationResults = locationResults as? MapplsAutoSuggestLocationResults {
+		if let suggestions = locationResults.suggestions {
+			for suggestion in suggestions {
+				print("suggestion: \(suggestion.placeName)")
             }
         }
         if let suggestions = locationResults.suggestedSearches {
@@ -270,14 +319,14 @@ MapplsReverseGeocodeManager * reverseGeocodeManager = [[MapplsReverseGeocodeMana
 MapplsReverseGeocodeOptions *revOptions = [[MapplsReverseGeocodeOptions alloc] initWithCoordinate:CLLocationCoordinate2DMake(28.553291, 77.258876) withRegion:MapplsRegionTypeIndia];
     
 [reverseGeocodeManager reverseGeocodeWithOptions:revOptions completionHandler:^(NSArray<MapplsGeocodedPlacemark *> * _Nullable placemarks, NSString * _Nullable attribution, NSError * _Nullable error) {
-    if (error) {
-        NSLog(@"%@", error);
-    } else if (placemarks.count > 0) {
-        NSLog(@"Reverse Geocode %@",
-        placemarks[0].formattedAddress);
-    } else {
-        NSLog(@"No results");
-    }
+	if (error) {
+		NSLog(@"%@", error);
+	} else if (placemarks.count > 0) {
+		NSLog(@"Reverse Geocode %@",
+		placemarks[0].formattedAddress);
+	} else {
+		NSLog(@"No results");
+	}
 }];
 ```
 
@@ -289,13 +338,13 @@ let reverseGeocodeManager = MapplsReverseGeocodeManager(clientId: MapplsAccountM
         
 let revOptions = MapplsReverseGeocodeOptions(coordinate: CLLocationCoordinate2D(latitude: 28.553291, longitude: 77.258876), withRegion: .india)
 reverseGeocodeManager.reverseGeocode(revOptions) { (placemarks, attribution, error) in
-    if let error = error {
-        print("%@", error)
-    } else if let placemarks = placemarks, !placemarks.isEmpty {
-        print("Reverse Geocode: \(placemarks[0].formattedAddress)")
-    } else {
-        print("No results")
-    }
+	if let error = error {
+		print("%@", error)
+	} else if let placemarks = placemarks, !placemarks.isEmpty {
+		print("Reverse Geocode: \(placemarks[0].formattedAddress)")
+	} else {
+		print("No results")
+	}
 }
 ```
 
@@ -323,8 +372,8 @@ To perform nearby search use `MapplsNearbyAtlasOptions` class to pass keywords/c
 1.  **page:**  provides number of the page to provide results from.
 
 2.  **sort:**  provides configured sorting operations for the client on cloud. Below are the available sorts:
-        -  dist:asc & dist:desc - will sort data in order of distance from the passed location (default).
-        -  name:asc & name:desc - will sort the data on alphabetically bases.
+		-  dist:asc & dist:desc - will sort data in order of distance from the passed location (default).
+		-  name:asc & name:desc - will sort the data on alphabetically bases.
 
 3.  **radius (integer):**  provides the range of distance to search over (default: 1000, min: 500, max: 10000).
 
@@ -334,14 +383,14 @@ To perform nearby search use `MapplsNearbyAtlasOptions` class to pass keywords/c
 
 6. **filters:**   On basis of this only specific type of response returned. it can of type `MapplsNearbyKeyValueFilter` (derived from `MapplsNearbySearchFilter`).
 MapplsNearbySearchFilter have following properties.
-    - **filterKey:-** It takes  value for `key`  to filter result.
-    - **filterValues:-** It takes an array of different query values.
-    - **logicalOperator:-** `logicalOperator` of enum `MapplsLogicalOperator`  its default value is `and`.
+	- **filterKey:-** It takes  value for `key`  to filter result.
+	- **filterValues:-** It takes an array of different query values.
+	- **logicalOperator:-** `logicalOperator` of enum `MapplsLogicalOperator`  its default value is `and`.
 
 
-    ``` swift 
-    let filter = MapplsNearbyKeyValueFilter(filterKey: "brandId", filterValues: [String,String])
-    ```
+	``` swift 
+	let filter = MapplsNearbyKeyValueFilter(filterKey: "brandId", filterValues: [String,String])
+	```
 
 7.  **bounds (x1,y1;x2,y2):**  Allows the developer to send in map bounds to provide a nearby search of the geobounds. where x1,y1 are the latitude and langitude.
 
@@ -357,6 +406,9 @@ MapplsNearbySearchFilter have following properties.
     -   Locality
     -   City
     -   Village    
+
+12. **responseLanguage:** It is of type `String`. Use it to request the response in the specified language.
+
 
 ### Response Parameters
 
@@ -379,26 +431,28 @@ You will find below useful properties in suggestion object :
 -   **pincode:**  Pincode of area.
 -   **categoryCode:**  Code of category with that result belongs to.
 -   **richInfo:**  A dictionary object with dynamic information
--    **hourOfOperation:** A string value which describes hour of operation.
--    **addressTokens**:
-    - **houseNumber**: house number of the location.
-    - **houseName**: house name of the location.
-    - **poi**: name of the POI (if applicable)
-    - **street**: name of the street. (if applicable)
-    - **subSubLocality**: the sub-sub-locality to which the location belongs. (if applicable)
-    - **subLocality**: the sub-locality to which the location belongs. (if applicable)
-    - **locality**: the locality to which the location belongs. (if applicable)
-    - **village**: the village to which the location belongs. (if applicable)
-    - **subDistrict**: the sub-district to which the location belongs. (if applicable)
-    - **district**: the district to which the location belongs. (if applicable)
-    - **city**: the city to which the location belongs. (if applicable)
-    - **state**: the state to which the location belongs. (if applicable)
-    - **pincode**: the PIN code to which the location belongs. (if applicable)
-  -    **pageInfo**:
-    - **pageCount**
-    - **totalHits**
-    - **totalPages**
-    - **pageSize**
+-	**hourOfOperation:** A string value which describes hour of operation.
+-	**addressTokens**:
+	- **houseNumber**: house number of the location.
+	- **houseName**: house name of the location.
+	- **poi**: name of the POI (if applicable)
+	- **street**: name of the street. (if applicable)
+	- **subSubLocality**: the sub-sub-locality to which the location belongs. (if applicable)
+	- **subLocality**: the sub-locality to which the location belongs. (if applicable)
+	- **locality**: the locality to which the location belongs. (if applicable)
+	- **village**: the village to which the location belongs. (if applicable)
+	- **subDistrict**: the sub-district to which the location belongs. (if applicable)
+	- **district**: the district to which the location belongs. (if applicable)
+	- **city**: the city to which the location belongs. (if applicable)
+	- **state**: the state to which the location belongs. (if applicable)
+	- **pincode**: the PIN code to which the location belongs. (if applicable)
+  -	**pageInfo**:
+	- **pageCount**
+	- **totalHits**
+	- **totalPages**
+	- **pageSize**
+
+The `NearbyResult` object also exposes a **`lang`** (`String?`) property indicating the language of the returned results.
 
 ### Code Samples
 
@@ -413,13 +467,13 @@ NSString *refLocation = @"28.550667, 77.268959";
 MapplsNearbyAtlasOptions *nearByOptions = [[MapplsNearbyAtlasOptions alloc] initWithQuery:@"EV Charging" location:refLocation withRegion:MapplsRegionTypeIndia];
     
 [nearByManager getNearBySuggestionsWithOptions:nearByOptions completionHandler:^(MapplsNearbyResult * _Nullable result, NSError * _Nullable error) {
-    if (error) {
-        NSLog(@"%@", error);
-    } else if (result.suggestions.count > 0) {
-        NSLog(@"Nearby %@", result.suggestions[0].placeAddress);
-    } else {
-        NSLog(@"No results");
-    }
+	if (error) {
+		NSLog(@"%@", error);
+	} else if (result.suggestions.count > 0) {
+		NSLog(@"Nearby %@", result.suggestions[0].placeAddress);
+	} else {
+		NSLog(@"No results");
+	}
 }];
 ```
 #### Swift
@@ -438,13 +492,13 @@ nearByOptions.filters = [filter]
 nearByOptions.sortBy = sortBy
 nearByOptions.searchBy = .importance
 nearByManager.getNearBySuggestions(nearByOptions) { (result, error) in
-    if let error = error {
-        print("\(error.localizedDescription)")
-    } else if let result = result, let suggestions = result.suggestions, !suggestions.isEmpty {
-        print("Near by: \(suggestions[0].placeAddress)")
-    } else {
-        print("No results")
-    }
+	if let error = error {
+		print("\(error.localizedDescription)")
+	} else if let result = result, let suggestions = result.suggestions, !suggestions.isEmpty {
+		print("Near by: \(suggestions[0].placeAddress)")
+	} else {
+		print("No results")
+	}
 }
 ```
 
@@ -459,13 +513,13 @@ let nearByManager = MapplsNearByManager(restKey: MapplsAccountManager.restAPIKey
         let nearByOptions = MapplsNearbyAtlasOptions(query: "Shoes", location: "MMI000", withRegion: .india)
 
 nearByManager.getNearBySuggestions(nearByOptions) { (result, error) in
-    if let error = error {
-        print(error.localizedDescription)
-    } else if let result = result, let suggestions = result.suggestions, !suggestions.isEmpty {
-        print("Near by: \(suggestions[0].placeAddress)")
-    } else {
-        print("No results")
-    }
+	if let error = error {
+		print(error.localizedDescription)
+	} else if let result = result, let suggestions = result.suggestions, !suggestions.isEmpty {
+		print("Near by: \(suggestions[0].placeAddress)")
+	} else {
+		print("No results")
+	}
 }
 ```
 
@@ -515,13 +569,13 @@ MapplsPlaceDetailManager * placeDetailManager = [[MapplsPlaceDetailManager alloc
 MapplsPlaceDetailOptions * placeOptions = [[MapplsPlaceDetailOptions alloc] initWithMapplsPin:@"mmi000" withRegion:MapplsRegionTypeIndia];
 
 [placeDetailManager getResultsWithOptions:placeOptions completionHandler:^(MapplsPlaceDetail * _Nullable placeDetail, NSError * _Nullable error) {
-    if (error) {
-        NSLog(@"%@", error);
-    } else if(placeDetail) {
-        NSLog(@"Place DetailL: %@", placeDetail.address);
-    } else {
-        NSLog(@"No results");
-    }
+	if (error) {
+		NSLog(@"%@", error);
+	} else if(placeDetail) {
+		NSLog(@"Place DetailL: %@", placeDetail.address);
+	} else {
+		NSLog(@"No results");
+	}
 }];
 
 #### Swift
@@ -529,13 +583,13 @@ MapplsPlaceDetailOptions * placeOptions = [[MapplsPlaceDetailOptions alloc] init
 let placeDetailManager = MapplsPlaceDetailManager.shared
 let placeOptions = MapplsPlaceDetailOptions(mapplsPin: "mmi000", withRegion: .india)
 placeDetailManager.getResults(placeOptions) { (placeDetail, error) in
-    if let error = error {
-        print(error)
-    } else if let placeDetail = placeDetail, let latitude = placeDetail.latitude, let longitude = placeDetail.longitude {
-        print("Place Detail : \(latitude),\(longitude)")
-    } else {
-        print("No results")
-    }
+	if let error = error {
+		print(error)
+	} else if let placeDetail = placeDetail, let latitude = placeDetail.latitude, let longitude = placeDetail.longitude {
+		print("Place Detail : \(latitude),\(longitude)")
+	} else {
+		print("No results")
+	}
 }
 ```
 
@@ -612,13 +666,13 @@ MapplsAtlasGeocodeManager * atlasGeocodeManager = [[MapplsAtlasGeocodeManager al
 MapplsAtlasGeocodeOptions *atlasGeocodeOptions = [[MapplsAtlasGeocodeOptions alloc] initWithQuery: @"237 Mappls" withRegion:MapplsRegionTypeIndia];
     
 [atlasGeocodeManager getGeocodeResultsWithOptions:atlasGeocodeOptions completionHandler:^(MapplsAtlasGeocodeAPIResponse * _Nullable response, NSError * _Nullable error) {
-    if (error) {
-        NSLog(@"%@", error);
-    } else if (response!= nil && response.placemarks.count > 0) {
-        NSLog(@"Forward Geocode %@%@", response.placemarks[0].latitude, response.placemarks[0].longitude);
-    } else {
-        NSLog(@"No results");
-    }
+	if (error) {
+		NSLog(@"%@", error);
+	} else if (response!= nil && response.placemarks.count > 0) {
+		NSLog(@"Forward Geocode %@%@", response.placemarks[0].latitude, response.placemarks[0].longitude);
+	} else {
+		NSLog(@"No results");
+	}
 }];
 ```
 #### Swift
@@ -630,13 +684,13 @@ let atlasGeocodeManager = MapplsAtlasGeocodeManager(restKey: MapplsAccountManage
 let atlasGeocodeOptions = MapplsAtlasGeocodeOptions(query: "237 Mappls", withRegion: .india)
 
 atlasGeocodeManager.getGeocodeResults(atlasGeocodeOptions) { (response, error) in
-    if let error = error {
-        NSLog("%@", error)
-    } else if let result = response, let placemarks = result.placemarks, placemarks.count > 0 {
-        print("Atlas Geocode: \(placemarks[0].latitude),\(placemarks[0].longitude)")
-    } else {
-        print("No results")
-    }
+	if let error = error {
+		NSLog("%@", error)
+	} else if let result = response, let placemarks = result.placemarks, placemarks.count > 0 {
+		print("Atlas Geocode: \(placemarks[0].latitude),\(placemarks[0].longitude)")
+	} else {
+		print("No results")
+	}
 }
 ```
 For more details visit our [api reference documentation](https://about.mappls.com/api/advanced-maps/doc/geocoding-api#/Geocode%20API/AtlasGeocodeAPI).
@@ -884,9 +938,9 @@ In response either you will receive an error or an object of  `MapplsDrivingDist
 1. `responseCode`: API status code.
 2. `version`: API’s version information
 3. `results`: Array of results, each consisting of the following parameters
-    - `code`: if the request was successful, code is “ok”.
-    - `durations`: duration in seconds for source to secondary locations in order as passed.
-    - `distances`: distance in meters for source to secondary locations in order as passed.
+	- `code`: if the request was successful, code is “ok”.
+	- `durations`: duration in seconds for source to secondary locations in order as passed.
+	- `distances`: distance in meters for source to secondary locations in order as passed.
 
 ### Code Samples
 
@@ -897,15 +951,15 @@ MapplsDrivingDistanceMatrixManager *distanceMatrixManager = [MapplsDrivingDistan
 MapplsDrivingDistanceMatrixOptions *distanceMatrixOptions = [[MapplsDrivingDistanceMatrixOptions alloc] initWithCenter:[[CLLocation alloc] initWithLatitude: 28.543014 longitude:77.242342] points:[NSArray arrayWithObjects: [[CLLocation alloc] initWithLatitude:28.520638 longitude:77.201959], [[CLLocation alloc] initWithLatitude:28.511810 longitude: 77.252773], nil] withRegion:MapplsRegionTypeIndia];
     
 [distanceMatrixManager getResultWithOptions:distanceMatrixOptions completionHandler:^(MapplsDrivingDistanceMatrixResponse * _Nullable result, NSError * _Nullable error) {
-    if (error) {
-        NSLog(@"%@", error);
-    } else if (result != nil  && result.results != nil) {
-        NSArray<NSNumber *> *durations = result.results.durations.firstObject;
+	if (error) {
+		NSLog(@"%@", error);
+	} else if (result != nil  && result.results != nil) {
+		NSArray<NSNumber *> *durations = result.results.durations.firstObject;
         NSArray<NSNumber *> *distances = result.results.distances.firstObject;
         
         NSUInteger pointCount = [distanceMatrixOptions points].count;
         for (NSUInteger i = 0; i < pointCount; i++) {
-            if (i < durations.count && i < distances.count) {
+        	if (i < durations.count && i < distances.count) {
                 NSLog(@"Driving Distance Matrix ETA %lu duration: %@, distance: %@", (unsigned long)i, durations[i], distances[i]);
             }
         }
@@ -922,18 +976,18 @@ let distanceMatrixOptions = MapplsDrivingDistanceMatrixOptions(center: CLLocatio
 distanceMatrixOptions.profileIdentifier = .driving
 distanceMatrixOptions.resourceIdentifier = .eta
 distanceMatrixManager.getResult(distanceMatrixOptions) { (result, error) in
-    if let error = error {
-        NSLog("%@", error)
-    } else if let result = result, let results = result.results, let durations = results.durations?[0], let distances = results.distances?[0] {
-            let pointCount = distanceMatrixOptions.points?.count ?? -1
-            for i in 0..<pointCount {
-                if i < durations.count && i < distances.count {
-                    print("Driving Distance Matrix ETA \(i): duration: \(durations[i]) distance: \(distances[i])")
-                }
-            }
-        } else {
-        print("No results")
-    }
+	if let error = error {
+		NSLog("%@", error)
+	} else if let result = result, let results = result.results, let durations = results.durations?[0], let distances = results.distances?[0] {
+			let pointCount = distanceMatrixOptions.points?.count ?? -1
+			for i in 0..<pointCount {
+				if i < durations.count && i < distances.count {
+					print("Driving Distance Matrix ETA \(i): duration: \(durations[i]) distance: \(distances[i])")
+            	}
+        	}
+    	} else {
+    	print("No results")
+	}
 }
 ```
 
@@ -942,9 +996,9 @@ distanceMatrixManager.getResult(distanceMatrixOptions) { (result, error) in
 **Code snipet for getting distance between different locations using Mappls Pin is below.**
 
 ```swift
-    let distanceMatrixManager = MapplsDrivingDistanceMatrixManager.shared
+	let distanceMatrixManager = MapplsDrivingDistanceMatrixManager.shared
     et distanceMatrixOptions = MapplsDrivingDistanceMatrixOptions(locations: ["JIHGS1", "17ZUL7", "77.242342,28.543014", "17ZUL7"], withRegion: .india)
-    distanceMatrixOptions.profileIdentifier = .driving
+	distanceMatrixOptions.profileIdentifier = .driving
     if isETA {
         distanceMatrixOptions.resourceIdentifier = .eta
     }
@@ -954,18 +1008,18 @@ distanceMatrixManager.getResult(distanceMatrixOptions) { (result, error) in
         if let error = error {
             NSLog("%@", error)
         } else if let result = result, let results = result.results, let durations = results.durationsAPI?[0], let distances = results.distancesAPI?[0] {
-            let pointCount = distanceMatrixOptions.locations?.count ?? -1
-            for i in 0..<pointCount {
-                if i < durations.count && i < distances.count {
-                    let duration = durations[i].intValue
-                    let distance = distances[i].intValue
-                    print("Driving Distance Matrix\(isETA ? " ETA" : "") \(i): duration: \(duration) distance: \(distance)")
-                }
-            } else {
-                print("No results")
-            }
-         }
-    }
+			let pointCount = distanceMatrixOptions.locations?.count ?? -1
+			for i in 0..<pointCount {
+				if i < durations.count && i < distances.count {
+					let duration = durations[i].intValue
+					let distance = distances[i].intValue
+					print("Driving Distance Matrix\(isETA ? " ETA" : "") \(i): duration: \(duration) distance: \(distance)")
+				}
+			} else {
+				print("No results")
+			}
+  	   }
+	}
 ```
 
 For more details visit our [api reference documentation](https://about.mappls.com/api/advanced-maps/doc/driving-distance-matrix-api).
@@ -993,6 +1047,7 @@ Additionally you can pass some other parameters to get filtered/specific results
 1.  **geometries:**  It is of enum type `MapplsPolylineGeometryType`, default value is `polyline5`. Values of enum specifies type of geometry encoding.
 1.  **buffer:** It is of type `Int`. Buffer of the road.
 1. **page:**  It is of type `Int`. Used for pagination. By default, a request returns maximum 10 results and to get the next 10 or so on pass the page value accordingly. Default is 1.
+1. **responseLanguage:** It is of type `String`. Use it to request the response in the specified language (sent as the `responseLang` parameter).
 
 ### Response Parameters:
 
@@ -1032,13 +1087,13 @@ let poiAlongTheRouteOptions = MapplsPOIAlongTheRouteOptions(path: routePath, cat
 poiAlongTheRouteOptions.buffer = 300
 
 poiAlongTheRouteManager.getPOIsAlongTheRoute(poiAlongTheRouteOptions) { (suggestions, error) in
-    if let error = error {
+	if let error = error {
 
-    } else if let suggestions = suggestions {
-        for suggestion in suggestions {
+	} else if let suggestions = suggestions {
+		for suggestion in suggestions {
             print("POI Along \(suggestion.latitude) \(suggestion.longitude)")
         }
-    }            
+	}            
 }
 ```
 
@@ -1078,8 +1133,8 @@ Class used to get list of Nearby Reports API is `MapplsNearbyReportManager`. Cre
 
 #### Mandatory Parameters:
 1.  **bound:** This parameter takes bound. It is of type `MapplsRectangularRegion` which is s a rectangular bounding box for a geographic region. whic contains following parameters
-    a. bottomRight :- Coordinate at the bottomRight corner which is of type `CLLocationCoordinate2D`
-    b. topLeft:- Coordinate at the northeast corner which is of type `CLLocationCoordinate2D`
+	a. bottomRight :- Coordinate at the bottomRight corner which is of type `CLLocationCoordinate2D`
+	b. topLeft:- Coordinate at the northeast corner which is of type `CLLocationCoordinate2D`
 
 ### Response Parameters:
 
@@ -1100,21 +1155,21 @@ let bottomRight = CLLocationCoordinate2D(latitude: 34.0, longitude: 78.32)
 let bound = MapplsRectangularRegion(topLeft: topleft, bottomRight: bottomRight)
 let option = MapplsNearbyReportOptions(bound: bound)
 nearbyReportManager.getNearbyReportResult(option) { (response, error) in
-    if let error = error {
-        print("error: \(error.localizedDescription)")
-    } else {
-        if let res: MapplsNearbyReportResponse = response, let totalItem = res.pagination?.totalItems {
-            if let reports = res.reports {
-                for i in reports {
-                    if let lat = i.latitude, let long = i.longitude {
-                        let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
-                        print("Reported Coordinate: \(coordinate)")
-                    }
-                }
-            }
-            print("Total item : \(totalItem)")
-        }
-    }
+	if let error = error {
+		print("error: \(error.localizedDescription)")
+	} else {
+		if let res: MapplsNearbyReportResponse = response, let totalItem = res.pagination?.totalItems {
+			if let reports = res.reports {
+				for i in reports {
+					if let lat = i.latitude, let long = i.longitude {
+						let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+						print("Reported Coordinate: \(coordinate)")
+					}
+				}
+			}
+			print("Total item : \(totalItem)")
+		}
+	}
 }
 ```
 
@@ -1141,23 +1196,23 @@ Class used to get list of Current Weather Condition API is `MapplsWeatherManager
 
 #### Optional Parameter
 1. `tempUnit (String)`: Unit of temperature. **Below are the available value:**
-    - "C" celcius(°C)
-    - "F" farenheit (F)
+	- "C" celcius(°C)
+	- "F" farenheit (F)
 2.  `theme (MapplsIconTheme)`: This parameter is used to define the theme of icon. **Below are the available value:**
-    - MapplsIconThemeDark
-    - MapplsIconThemeLight 
+	- MapplsIconThemeDark
+	- MapplsIconThemeLight 
 3.  `size (MapplsWeatherIconSize )`: This parameter is used to define the size of icon. **Below are the available value:**
-    - MapplsWeatherIconSize36PX (Default)
-    - MapplsWeatherIconSize24PX 
+	- MapplsWeatherIconSize36PX (Default)
+	- MapplsWeatherIconSize24PX 
 4. `unitType (MapplsWeatherForcastUnitType)`: This parameter defines the unit type on the basis of which weather forecast information is sought for. **Below are the available value:**
-    - MapplsWeatherForcastUnitTypeDay
-    - MapplsWeatherForcastUnitTypeHour
+	- MapplsWeatherForcastUnitTypeDay
+	- MapplsWeatherForcastUnitTypeHour
 5. `unit (string)`: This parameter is the value for which forecast information is sought for. Valid values are:
-    - For Days
+	- For Days
         - `1`
         - `5`
         - `10`
-    - For Hours
+	- For Hours
         - `1`
         - `24`
 
@@ -1250,8 +1305,8 @@ In callback of `getResults` function it will either return an error object of ty
                 print("current temperature: \(temp) \(unit)")
             }
             
-        if let forcast = weatherResponse?.data?.forecastData {
-                for forecastData in forcast {
+		if let forcast = weatherResponse?.data?.forecastData {
+            	for forecastData in forcast {
                     if let day = forecastData.day, let date = forecastData.date {
                         print("day: \(forecastData.day) Date: \(date)")
                     }
@@ -1263,7 +1318,7 @@ In callback of `getResults` function it will either return an error object of ty
 **Objective-c**
 
 ```objc
-    MapplsWeatherManager * manager = [MapplsWeatherManager sharedManager];
+	MapplsWeatherManager * manager = [MapplsWeatherManager sharedManager];
     CLLocation *location = [[CLLocation alloc] initWithLatitude:28.00 longitude:78.00];
     MapplsWeatherRequestOptions *options = [[MapplsWeatherRequestOptions alloc] initWithLocation:location];
     options.theme = MapplsIconThemeLight;
@@ -1428,7 +1483,6 @@ Below is line of code to initilize instance of it:
 ```swift
 let speedInfo = MapplsDrivingRangePredictiveSpeedFromCustomTime(timestamp: 1633684669)
 ```
-
 
 ## [Transit Route Planner API](#Transit-Route-Planner-API)
 
@@ -1601,6 +1655,10 @@ revNearbyManager.getRevgeocodeNearby(options) { (result, error) in
 ```
 
 <br><br><br>
+
+## [License](#License)
+
+`MapplsAPIKit` is released under the BSD license. See [LICENSE.md](LICENSE.md) for details.
 
 ## Our many happy customers:
 
