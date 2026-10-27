@@ -36,6 +36,7 @@ Our APIs, SDKs, and live-updating map data are available for [200+ countries & t
 - [Driving Distance Time Matrix API](#Driving-Distance-Time-Matrix-API)
 - [POI Along The Route API](#POI-Along-The-Route-API)
 - [Nearby Reports API](#Nearby-Reports-API)
+- [Route Reported Event Summary API](#Route-Reported-Event-Summary-API)
 - [Current Weather Condition API](#Current-Weather-Condition-API)
 - [Congestion Delays](#Congestion-Delays)
 - [Driving Range](#Driving-Range)
@@ -66,11 +67,12 @@ dependencies are **not** added automatically — add `MapplsAPICore` manually fr
 
 ## [Version History](#Version-History)
 
-> **Latest release · `3.0.9`** — 25 Sep 2026 · See [CHANGELOG.md](CHANGELOG.md) for full release notes.
+> **Latest release · `3.0.10`** — 27 Oct 2026 · See [CHANGELOG.md](CHANGELOG.md) for full release notes.
 
 | Version | Date | Highlights |
 | :---: | :---: | :--- |
-| **`3.0.9`** | 25 Sep 2026 | Added support for `MapplsAPICore` 2.1.6; improvements and bug fixes. |
+| **`3.0.10`** | 27 Oct 2026 | Objective-C support for Route Reported Event Summary models; fixed response encoding. |
+| `3.0.9` | 25 Sep 2026 | Added support for `MapplsAPICore` 2.1.6; improvements and bug fixes. |
 | `3.0.8` | 24 Sep 2026 | Renamed `searchType` to `global`; added `responseLanguage`, response `lang`, and `isKeyword`. |
 | `3.0.7`| 07 Sep 2026 | - Multi-Lane Guidance. <br> - Introduced validIndication property to evaluate and represent valid maneuver indications for individual lanes.|
 | `3.0.6` | 25 Jun 2026 | Added Odia language support. |
@@ -1179,6 +1181,94 @@ nearbyReportManager.getNearbyReportResult(option) { (response, error) in
 }
 ```
 
+
+## [Route Reported Event Summary API](#Route-Reported-Event-Summary-API)
+
+The Route Reported Event Summary API returns community-reported events (such as hazards, closures, and traffic incidents) that fall along a previously calculated route, grouped per route and by category.
+
+Call `getReportedEventSummaryForRoute(options:completionHandler:)` on an instance of the `Directions` class. Build the request with `MapplsReportSummaryOptions`, initialised with the `routeId` returned by the [Routing API](#Routing-API). The completion handler returns a `MapplsRouteReportedEventSummaryResponse`.
+
+### Request Parameters
+
+Set these on `MapplsReportSummaryOptions`:
+
+1. **routeID** *(String, required)*: Identifier of the route to summarise, obtained from the routing response.
+2. **routeIdx** *(Int, optional)*: Index of a specific route when the routing response contains alternatives.
+3. **nodeId** *(Int, optional)*: Restrict the summary to events near a specific route node.
+4. **categories** *(\[String], optional)*: Filter events to the given category codes. Sent as a comma-separated list.
+5. **isGroup** *(String, optional)*: When set, groups the reported events.
+6. **scrName** *(String, optional)*: Screen name passed through for analytics/attribution.
+
+### Response Parameters
+
+The response is a `MapplsRouteReportedEventSummaryResponse`:
+
+- **routeReports** (`[MapplsRouteReportedEventSummary]?`): One entry per route, each containing:
+  - **routeIndex** (`Int?`): Index of the route (`routeIdx`). From Objective-C, read `routeIndex` as an `NSNumber`.
+  - **routeId** (`String?`): Identifier of the route.
+  - **reports** (`[MapplsReportedEventSummary]?`): Flat list of reported events along the route.
+  - **parentCategories** (`[MapplsRouteParentCategory]?`): Reported events grouped by their parent category.
+- **routeId** (`String?`): Identifier of the route this response is associated with.
+
+Each `MapplsReportedEventSummary` exposes useful properties such as:
+
+- **id** (`String?`): Unique id of the reported event.
+- **parentCategory** / **childCategory** (`String?`): Human-readable category names.
+- **address** (`String?`): Place description of the event.
+- **latitude** / **longitude** (`Double?`): Event coordinates. From Objective-C these are `NSNumber`.
+- **nodeIdx** (`Int?`): Index of the nearest route node.
+- **usersCount** (`Int?`): Number of users who reported/confirmed the event.
+- **expiry** (`Int?`): Report expiry as a Unix timestamp.
+- **addedBy** / **addedByName** (`String?`): Reporting user id and display name.
+- **status** (`String?`): Current status of the report.
+- **reportDescription** (`String?`): Free-text description (JSON key `description`).
+- **iconUrl** (`String?`): Fully qualified icon URL, built using `RouteEventImageSize` and `RouteEventImageScale`.
+
+***Note:*** In Objective-C, value-type optionals (`Int?`, `Double?`, `Bool?`) are exposed as `NSNumber` under the same property names (for example `nodeIdx`, `latitude`, `directionsVisibility`), and are `nil` when absent.
+
+### Code Samples
+
+#### Swift
+```swift
+let directions = Directions.shared
+
+let options = MapplsReportSummaryOptions(routeId: "<ROUTE_ID>")
+options.categories = ["TRAFFIC_JAM", "ROAD_CLOSED"]
+
+directions.getReportedEventSummaryForRoute(options: options) { response, error in
+    if let error = error {
+        print("error: \(error.localizedDescription)")
+    } else if let routeReports = response?.routeReports {
+        for routeReport in routeReports {
+            for report in routeReport.reports ?? [] {
+                print("\(report.parentCategory ?? "") at \(report.address ?? "")")
+            }
+        }
+    } else {
+        print("No reports")
+    }
+}
+```
+
+#### Objective C
+```objectivec
+Directions *directions = [Directions sharedDirections];
+
+MapplsReportSummaryOptions *options = [[MapplsReportSummaryOptions alloc] initWithRouteId:@"<ROUTE_ID>"];
+options.categories = @[@"TRAFFIC_JAM", @"ROAD_CLOSED"];
+
+[directions getReportedEventSummaryForRouteWithOptions:options baseURL:nil completionHandler:^(MapplsRouteReportedEventSummaryResponse * _Nullable response, NSError * _Nullable error) {
+    if (error) {
+        NSLog(@"%@", error);
+    } else {
+        for (MapplsRouteReportedEventSummary *routeReport in response.routeReports) {
+            for (MapplsReportedEventSummary *report in routeReport.reports) {
+                NSLog(@"%@ at %@", report.parentCategory, report.address);
+            }
+        }
+    }
+}];
+```
 
 ## [Current Weather Condition API](#Current-Weather-Condition-API)
 

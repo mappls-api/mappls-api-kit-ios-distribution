@@ -1,5 +1,19 @@
 # Changes to the MapplsAPIKit SDK for iOS
 
+## 3.0.10 - 27 Oct, 2026
+
+### Added
+- Added Objective-C support for the Route Reported Event Summary response models: `MapplsRouteReportedEventSummaryResponse`, `MapplsRouteReportedEventSummary`, `MapplsRouteParentCategory`, and `MapplsReportedEventSummary` are now `@objc` / `@objcMembers`.
+- Added documentation comments to the Route Reported Event Summary models.
+- Added Route Reported Event Summary API documentation to the README.
+- Sample app: added a "Route Report Summary" demo that shows reported events along the route as map markers using the icon images returned by the API, with configurable request options and a JSON response viewer.
+
+### Changed
+- Optional Swift value types (`Int?`, `Double?`, `Bool?`) in the report summary models, such as `routeIndex`, `parentCategory`, `latitude`, `longitude`, `nodeIdx`, `usersCount`, `expiry`, `parentCategoryId`, `childCategoryId`, `directionsVisibility`, `greenTime`, and `redTime`, are exposed to Objective-C as `NSNumber?` under the same property names. The Swift API is unchanged.
+
+### Fixed
+- Fixed `MapplsRouteReportedEventSummaryResponse.encode(to:)` encoding `routes` twice and writing `null` for missing values. It now uses `encodeIfPresent`.
+
 ## 3.0.9 - 25 Sep, 2026
 
 ### Added
